@@ -1,0 +1,160 @@
+name: cd
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+env:
+  IMAGE_NAME: i6
+  IMAGE_LATEST: docker.pkg.github.com/kruserr/i6/i6:latest
+
+jobs:
+  rustfmt:
+    name: Formatting
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Formatting
+        run: cargo fmt --all -- --check
+
+  clippy:
+    name: Lint
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Cache
+        uses: Swatinem/rust-cache@v2
+      - name: Lint
+        run: cargo clippy --all-targets --all-features -- -Dwarnings
+
+  test:
+    name: Test
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout
+        if: github.event_name != 'pull_request'
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Checkout
+        if: github.event_name == 'pull_request'
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+      - name: Cache
+        uses: Swatinem/rust-cache@v2
+      - name: Setup cargo-tarpaulin
+        run: |
+          curl -s https://api.github.com/repos/xd009642/tarpaulin/releases/tags/0.22.0 | \
+            grep "browser_download_url.*tar.gz" | cut -d : -f 2,3 | tr -d \" | wget -qi -
+          tar -xzf cargo-tarpaulin-*.tar.gz
+          mv cargo-tarpaulin ~/.cargo/bin/
+      - name: Run tests
+        run: cargo tarpaulin --out Xml --verbose
+      - name: Upload reports to codecov
+        uses: codecov/codecov-action@v3
+        with:
+          name: code-coverage-report
+          file: cobertura.xml
+          flags: unit-tests
+          fail_ci_if_error: true
+          verbose: true
+
+  publish-crates-io:
+    name: Publish on crates.io
+    needs:
+      - rustfmt
+      - clippy
+      - test
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Cache
+        uses: Swatinem/rust-cache@v2
+      - name: Publish
+        run: |
+          cargo publish --token ${{ secrets.CARGO_TOKEN }}
+
+  publish-docker:
+    name: Publish on GitHub Packages and Docker Hub
+    needs:
+      - rustfmt
+      - clippy
+      - test
+    runs-on: ubuntu-22.04
+    if: github.event_name == 'push'
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Build image
+        run: |
+          docker build \
+            --cache-from $IMAGE_LATEST \
+            --build-arg BUILDKIT_INLINE_CACHE=1 \
+            --tag $IMAGE_NAME .
+      - name: Login to GitHub Packages
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login docker.pkg.github.com -u ${{ github.actor }} --password-stdin
+      - name: Push image to GitHub Packages
+        run: |
+          IMAGE_ID=docker.pkg.github.com/${{ github.repository }}/$IMAGE_NAME
+
+          # Change all uppercase to lowercase
+          IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
+
+          # Strip git ref prefix from version
+          VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
+
+          # Strip "v" prefix from tag name
+          [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo $VERSION | sed -e 's/^v//')
+
+          # Strip patch version from tag name
+          [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION_MINOR=${VERSION%.*}
+
+          # Strip minor version from tag name
+          [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION_MAJOR=${VERSION_MINOR%.*}
+
+          docker tag $IMAGE_NAME $IMAGE_ID:$VERSION
+          docker push $IMAGE_ID:$VERSION
+
+          docker tag $IMAGE_NAME $IMAGE_ID:$VERSION_MINOR
+          docker push $IMAGE_ID:$VERSION_MINOR
+
+          docker tag $IMAGE_NAME $IMAGE_ID:$VERSION_MAJOR
+          docker push $IMAGE_ID:$VERSION_MAJOR
+      - name: Login to Docker Hub
+        run: echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login docker.io -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+      - name: Push image to Docker Hub
+        run: |
+          IMAGE_ID=docker.io/${{ github.repository }}
+
+          # Change all uppercase to lowercase
+          IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
+
+          # Strip git ref prefix from version
+          VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
+
+          # Strip "v" prefix from tag name
+          [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo $VERSION | sed -e 's/^v//')
+
+          # Strip patch version from tag name
+          [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION_MINOR=${VERSION%.*}
+
+          # Strip minor version from tag name
+          [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION_MAJOR=${VERSION_MINOR%.*}
+
+          docker tag $IMAGE_NAME $IMAGE_ID:$VERSION
+          docker push $IMAGE_ID:$VERSION
+
+          docker tag $IMAGE_NAME $IMAGE_ID:$VERSION_MINOR
+          docker push $IMAGE_ID:$VERSION_MINOR
+
+          docker tag $IMAGE_NAME $IMAGE_ID:$VERSION_MAJOR
+          docker push $IMAGE_ID:$VERSION_MAJOR
