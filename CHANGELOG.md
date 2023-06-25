@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.3] - 2023-06-25
+
+### Documentation
+
+- Use -it for docker
+
 ## [0.1.2] - 2023-06-25
 
 ### Ci
