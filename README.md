@@ -26,16 +26,22 @@ A collection of tools
 Visit the [Documentation](https://docs.rs/i6).
 
 ## Getting Started
+### Cargo
+Install with cargo
+```sh
+cargo install --locked i6
+```
+
 ### Docker
-Run database with docker
+Run with docker
 ```bash
 docker run -it --rm --name i6 kruserr/i6:0.1
 ```
 
 ### Git and cargo
-Clone the repo and build the database from source
+Clone the repo and build from source
 ```bash
 git clone https://github.com/kruserr/i6.git
 cd i6
-cargo run --release
+cargo install --locked --path .
 ```
