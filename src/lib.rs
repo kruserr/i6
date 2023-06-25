@@ -34,7 +34,7 @@
 //! ### Docker
 //! Run database with docker
 //! ```bash
-//! docker run -dit --rm -p 3030:3030 --name i6 kruserr/i6:0.1
+//! docker run -it --rm -p 3030:3030 --name i6 kruserr/i6:0.1
 //! ```
 //!
 //! ### Git and cargo

@@ -29,7 +29,7 @@ Visit the [Documentation](https://docs.rs/i6).
 ### Docker
 Run database with docker
 ```bash
-docker run -dit --rm --name i6 kruserr/i6:0.1
+docker run -it --rm --name i6 kruserr/i6:0.1
 ```
 
 ### Git and cargo
