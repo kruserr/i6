@@ -27,9 +27,10 @@ Visit the [Documentation](https://docs.rs/i6).
 
 ## Getting Started
 ### Cargo
-Install with cargo
+Install and run with cargo
 ```sh
 cargo install --locked i6
+i6
 ```
 
 ### Docker
@@ -39,9 +40,10 @@ docker run -it --rm --name i6 kruserr/i6:0.1
 ```
 
 ### Git and cargo
-Clone the repo and build from source
+Clone the repo, build from source and run
 ```bash
 git clone https://github.com/kruserr/i6.git
 cd i6
 cargo install --locked --path .
+i6
 ```
