@@ -1,75 +1,65 @@
-use clap::{Args, Parser, Subcommand};
+fn command_timer() -> clap::Command {
+  clap::Command::new("timer")
+    .about("A timer")
+    .subcommand_required(true)
+    .subcommands(vec![
+      clap::Command::new("create")
+        .about("Create a timer")
+        .args(vec![
+          clap::Arg::new("minutes")
+            .help("set the minutes for the timer")
+            .num_args(1)
+            .value_parser(clap::value_parser!(u32).range(1..))
+            .required(true),
+          clap::Arg::new("minutes")
+            .short('m')
+            .long("minutes")
+            .help("set the minutes for the timer")
+            .num_args(1)
+            .value_parser(clap::value_parser!(u32).range(1..))
+            .required(true),
+          clap::Arg::new("name")
+            .short('n')
+            .long("name")
+            .help("set the name of the timer")
+            .num_args(1)
+            .value_parser(clap::value_parser!(String))
+            .required(false)
+        ]),
 
-trait IRunCommand {
-  fn run(&self);
-}
+      clap::Command::new("list")
+        .about("List timers"),
 
-#[derive(Args, Default)]
-struct TimerArgs {
-  /// Create a new timer with given minutes
-  minutes: u32,
-}
-impl IRunCommand for TimerArgs {
-  fn run(&self) {
-    println!("{:?}", self.minutes);
-  }
-}
-impl std::fmt::Display for TimerArgs {
-  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-    write!(f, "TimerArgs")
-  }
-}
-impl PartialEq for TimerArgs {
-  fn eq(&self, other: &Self) -> bool {
-    self.to_string() == other.to_string()
-  }
-}
+      clap::Command::new("stop")
+        .about("Stop timers"),
 
-#[derive(Subcommand, PartialEq)]
-enum Commands {
-  /// Create, list, stop and log timers
-  Timer(TimerArgs),
-}
-impl IRunCommand for Commands {
-  fn run(&self) {
-    match self {
-      Commands::Timer(x) => x.run(),
-    }
-  }
-}
-
-#[derive(Parser)]
-#[command(author, version, about, long_about = None)]
-#[command(propagate_version = true)]
-struct Cli {
-  #[command(subcommand)]
-  command: Commands,
+      clap::Command::new("log")
+        .about("Show timer logs")
+        .alias("history"),
+    ])
 }
 
-struct RunCommandFactory {
-  commands: Vec<Commands>,
+fn command_factory() -> Vec<clap::Command> {
+  vec![
+    command_timer(),
+  ]
 }
-impl RunCommandFactory {
-  fn new() -> Self {
-    Self {commands: vec![
-      Commands::Timer(Default::default()),
-    ]}
-  }
+
+fn command_root() -> clap::Command {
+  clap::command!()
+    .propagate_version(true)
+    .subcommand_required(true)
+    .arg_required_else_help(true)
+    .subcommands(command_factory())
 }
 
 fn main() {
-  let cli = Cli::parse();
-  let factory = RunCommandFactory::new();
+  let matches = command_root().get_matches();
 
-  for command in factory.commands {
-    if command == cli.command {
-      cli.command.run();
-    }
-  }
+  println!("{:?}", matches.subcommand());
 }
 
 #[test]
-fn verify_cli() {
-  use clap::CommandFactory;
-  Cli::command().debug_assert();
+fn verify_cmd() {
+  command_root().debug_assert();
 }
