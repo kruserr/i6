@@ -24,9 +24,41 @@ fn command_timer() -> clap::Command {
           .value_parser(clap::value_parser!(String))
           .required(false),
       ]),
-      clap::Command::new("list").about("List timers"),
-      clap::Command::new("stop").about("Stop timers"),
-      clap::Command::new("log").about("Show timer logs").alias("history"),
+      clap::Command::new("list")
+        .alias("ls")
+        .long_flag("list")
+        .about("List timers"),
+      clap::Command::new("stop").about("Stop timers").args(vec![
+        clap::Arg::new("name")
+          .help("stop the timer of given name")
+          .num_args(1)
+          .conflicts_with("all")
+          .value_parser(clap::value_parser!(String))
+          .required(true),
+        clap::Arg::new("name")
+          .short('n')
+          .long("name")
+          .help("stop the timer of given name")
+          .conflicts_with("all")
+          .num_args(1)
+          .value_parser(clap::value_parser!(String))
+          .required(false),
+        clap::Arg::new("all")
+          .long("all")
+          .help("stop all timers")
+          .conflicts_with("name")
+          .num_args(0)
+          .value_parser(clap::value_parser!(bool))
+          .required(false),
+      ]),
+      clap::Command::new("log").alias("history").about("Show timer logs").args(
+        vec![clap::Arg::new("json")
+          .long("json")
+          .help("as json")
+          .num_args(0)
+          .value_parser(clap::value_parser!(bool))
+          .required(false)],
+      ),
     ])
 }
 
