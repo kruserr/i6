@@ -12,3 +12,5 @@ categories = ["command-line-interface", "command-line-utilities", "development-t
 
 [dependencies]
 clap = "3"
+lazy_static = "1"
+parking_lot = "0.12"
