@@ -8,6 +8,9 @@ async fn main() -> Result<(), Box<dyn Error>> {
   let https_id = "https";
 
   let matches = App::new("i6")
+    .version(env!("CARGO_PKG_VERSION"))
+    .author(env!("CARGO_PKG_AUTHORS"))
+    .about(env!("CARGO_PKG_DESCRIPTION"))
     .subcommand(
       SubCommand::with_name(http_id).about("Start a static http server").arg(
         Arg::with_name("port")
