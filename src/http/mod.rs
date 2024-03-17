@@ -3,66 +3,58 @@ use openssl::pkey::PKey;
 use openssl::rsa::Rsa;
 use openssl::x509::extension::BasicConstraints;
 use openssl::x509::{X509NameBuilder, X509};
-use tracing_subscriber::fmt::format::FmtSpan;
-use warp::Filter;
 use std::error::Error;
 use std::fs::{File, OpenOptions};
 use std::io::Write;
 use std::path::Path;
+use tracing_subscriber::fmt::format::FmtSpan;
+use warp::Filter;
 
 pub fn open_or_create_file(path: &str) -> Result<File, Box<dyn Error>> {
-    let path = Path::new(path);
+  let path = Path::new(path);
 
-    if let Some(parent) = path.parent() {
-        std::fs::create_dir_all(parent)?;
-    }
+  if let Some(parent) = path.parent() {
+    std::fs::create_dir_all(parent)?;
+  }
 
-    let file = OpenOptions::new()
-        .read(true)
-        .write(true)
-        .create(true)
-        .open(path)?;
+  let file =
+    OpenOptions::new().read(true).write(true).create(true).open(path)?;
 
-    Ok(file)
+  Ok(file)
 }
 
-pub fn generate_openssl_x509_rsa_cert_key_files(cert_file_path: &str, key_file_path: &str) -> Result<(), Box<dyn Error>> {
-    let rsa = Rsa::generate(2048)?;
-    let pkey = PKey::from_rsa(rsa)?;
+pub fn generate_openssl_x509_rsa_cert_key_files(
+  cert_file_path: &str,
+  key_file_path: &str,
+) -> Result<(), Box<dyn Error>> {
+  let rsa = Rsa::generate(2048)?;
+  let pkey = PKey::from_rsa(rsa)?;
 
-    let mut name = X509NameBuilder::new()?;
-    name.append_entry_by_text("CN", "localhost")?;
-    let name = name.build();
+  let mut name = X509NameBuilder::new()?;
+  name.append_entry_by_text("CN", "localhost")?;
+  let name = name.build();
 
-    let mut builder = X509::builder()?;
-    builder.set_version(2)?;
-    builder.set_subject_name(&name)?;
-    builder.set_issuer_name(&name)?;
-    builder.set_pubkey(&pkey)?;
-    builder
-      .set_not_before(&*openssl::asn1::Asn1Time::days_from_now(0)?)
-      ?;
-    builder
-      .set_not_after(&*openssl::asn1::Asn1Time::days_from_now(3650)?)
-      ?;
+  let mut builder = X509::builder()?;
+  builder.set_version(2)?;
+  builder.set_subject_name(&name)?;
+  builder.set_issuer_name(&name)?;
+  builder.set_pubkey(&pkey)?;
+  builder.set_not_before(&*openssl::asn1::Asn1Time::days_from_now(0)?)?;
+  builder.set_not_after(&*openssl::asn1::Asn1Time::days_from_now(3650)?)?;
 
-    builder
-      .append_extension(
-        BasicConstraints::new().critical().ca().build()?,
-      )
-      ?;
+  builder.append_extension(BasicConstraints::new().critical().ca().build()?)?;
 
-    builder.sign(&pkey, MessageDigest::sha256())?;
+  builder.sign(&pkey, MessageDigest::sha256())?;
 
-    let certificate = builder.build();
+  let certificate = builder.build();
 
-    let mut key_file = open_or_create_file(key_file_path)?;
-    key_file.write_all(&pkey.private_key_to_pem_pkcs8()?)?;
+  let mut key_file = open_or_create_file(key_file_path)?;
+  key_file.write_all(&pkey.private_key_to_pem_pkcs8()?)?;
 
-    let mut cert_file = open_or_create_file(cert_file_path)?;
-    cert_file.write_all(&certificate.to_pem()?)?;
+  let mut cert_file = open_or_create_file(cert_file_path)?;
+  cert_file.write_all(&certificate.to_pem()?)?;
 
-    return Ok(());
+  return Ok(());
 }
 
 pub async fn create_server_http(port: u16) -> Result<(), Box<dyn Error>> {

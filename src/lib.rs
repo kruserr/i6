@@ -53,5 +53,5 @@
 //! i6
 //! ```
 
-pub mod timer;
 pub mod http;
+pub mod timer;
