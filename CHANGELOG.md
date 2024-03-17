@@ -2,6 +2,27 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.6] - 2024-03-17
+
+### Features
+
+- #1: init timer cli
+- Http and https commands
+
+### Styling
+
+- Fmt
+- Fmt
+- Fmt
+
+### Build
+
+- Organize deps
+
+### Ci
+
+- Allow unused parens and needles return
+
 ## [0.1.5] - 2023-06-25
 
 ### Documentation
