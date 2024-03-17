@@ -1,15 +1,28 @@
-use clap::{App, Arg, SubCommand};
+use std::error::Error;
 
-fn main() {
+use clap::{value_parser, App, Arg, SubCommand};
+
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn Error>> {
   let http_id = "http";
   let https_id = "https";
 
   let matches = App::new("i6")
     .subcommand(
-      SubCommand::with_name(http_id).about("Start a static http server"),
+      SubCommand::with_name(http_id).about("Start a static http server").arg(
+        Arg::with_name("port")
+          .index(1)
+          .default_value("3030")
+          .value_parser(value_parser!(u16)),
+      ),
     )
     .subcommand(
-      SubCommand::with_name(https_id).about("Start a static https server"),
+      SubCommand::with_name(https_id).about("Start a static https server").arg(
+        Arg::with_name("port")
+          .index(1)
+          .default_value("3030")
+          .value_parser(value_parser!(u16)),
+      ),
     )
     .subcommand(
       SubCommand::with_name("timer")
@@ -71,11 +84,19 @@ fn main() {
     .get_matches();
 
   if let Some(matches) = matches.subcommand_matches(http_id) {
-    println!("http");
+    println!("http, {:?}", matches);
+
+    let port = *matches.get_one::<u16>("port").unwrap_or(&3030);
+
+    i6::http::create_server_http(port).await?;
   }
 
   if let Some(matches) = matches.subcommand_matches(https_id) {
-    println!("https");
+    println!("https, {:?}", matches);
+
+    let port = *matches.get_one::<u16>("port").unwrap_or(&3030);
+
+    i6::http::create_server_https(port).await?;
   }
 
   if let Some(matches) = matches.subcommand_matches("timer") {
@@ -107,4 +128,6 @@ fn main() {
       i6::timer::create::create_timer(minutes, "");
     }
   }
+
+  return Ok(());
 }

@@ -54,3 +54,4 @@
 //! ```
 
 pub mod timer;
+pub mod http;
