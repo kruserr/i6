@@ -23,3 +23,9 @@ openssl = "0.10"
 
 # for db command
 rapiddb-web = "0.1"
+
+[lints.rust]
+unused_parens = "allow"
+
+[lints.clippy]
+needless_return = "allow"
