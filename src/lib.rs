@@ -52,3 +52,6 @@
 //! cargo install --locked --path .
 //! i6
 //! ```
+
+pub mod http;
+pub mod timer;
