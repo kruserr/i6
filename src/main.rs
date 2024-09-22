@@ -1,11 +1,14 @@
 use std::error::Error;
 
 use clap::{value_parser, App, Arg, SubCommand};
+use i6::shell;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
   let http_id = "http";
   let https_id = "https";
+
+  let shell_id = "sh";
 
   let matches = App::new("i6")
     .version(env!("CARGO_PKG_VERSION"))
@@ -26,6 +29,9 @@ async fn main() -> Result<(), Box<dyn Error>> {
           .default_value("3030")
           .value_parser(value_parser!(u16)),
       ),
+    )
+    .subcommand(
+      SubCommand::with_name(shell_id).about("Start a interactive shell"),
     )
     .subcommand(
       SubCommand::with_name("timer")
@@ -87,19 +93,21 @@ async fn main() -> Result<(), Box<dyn Error>> {
     .get_matches();
 
   if let Some(matches) = matches.subcommand_matches(http_id) {
-    println!("http, {:?}", matches);
-
     let port = *matches.get_one::<u16>("port").unwrap_or(&3030);
-
     i6::http::create_server_http(port).await?;
   }
 
   if let Some(matches) = matches.subcommand_matches(https_id) {
-    println!("https, {:?}", matches);
-
     let port = *matches.get_one::<u16>("port").unwrap_or(&3030);
-
     i6::http::create_server_https(port).await?;
+  }
+
+  if let Some(matches) = matches.subcommand_matches(shell_id) {
+    i6::shell::shell_main(
+      shell::lang::DefaultLexer,
+      shell::lang::DefaultParser,
+      shell::lang::DefaultInterpreter,
+    )?;
   }
 
   if let Some(matches) = matches.subcommand_matches("timer") {
