@@ -17,8 +17,12 @@ pub fn open_or_create_file(path: &str) -> Result<File, Box<dyn Error>> {
     std::fs::create_dir_all(parent)?;
   }
 
-  let file =
-    OpenOptions::new().read(true).write(true).create(true).truncate(false).open(path)?;
+  let file = OpenOptions::new()
+    .read(true)
+    .write(true)
+    .create(true)
+    .truncate(false)
+    .open(path)?;
 
   Ok(file)
 }
