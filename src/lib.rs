@@ -53,5 +53,8 @@
 //! i6
 //! ```
 
+#[allow(non_camel_case_types)]
+pub mod shell;
+
 pub mod http;
 pub mod timer;
