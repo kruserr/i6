@@ -2,6 +2,30 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.8] - 2024-09-22
+
+### Bug Fixes
+
+- Cargo clippy open file with truncate false
+
+### Miscellaneous Tasks
+
+- Change licence to AGPLv3
+- Change licence to AGPLv3
+
+### Styling
+
+- Fmt
+
+### Build
+
+- Cargo update
+- Use less specific version for tracing-subscriber
+
+### Ci
+
+- Add ci script
+
 ## [0.1.7] - 2024-03-17
 
 ### Features
