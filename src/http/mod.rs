@@ -18,7 +18,7 @@ pub fn open_or_create_file(path: &str) -> Result<File, Box<dyn Error>> {
   }
 
   let file =
-    OpenOptions::new().read(true).write(true).create(true).open(path)?;
+    OpenOptions::new().read(true).write(true).create(true).truncate(false).open(path)?;
 
   Ok(file)
 }
