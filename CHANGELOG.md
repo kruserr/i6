@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.11] - 2024-10-08
+
+### Documentation
+
+- Ref readme
+
+### Build
+
+- Update deps
+
+### Ci
+
+- Fix publish
+- Fix i6-pack publish
+- Fix i6-pack publish
+
 ## [0.1.10] - 2024-10-08
 
 ### Bug Fixes
