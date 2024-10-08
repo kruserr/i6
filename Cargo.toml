@@ -1,31 +1,19 @@
-[package]
-name = "i6"
-version = "0.1.9" # prepare_release.sh
-edition = "2021"
-license = "AGPL-3.0"
-authors = ["kruserr"]
-readme = "README.md"
-repository = "https://github.com/kruserr/i6"
-description = "A collection of tools"
-keywords = ["cli", "terminal", "utility", "tool", "command"]
-categories = ["command-line-interface", "command-line-utilities", "development-tools"]
+[workspace]
+resolver = "2"
 
-[dependencies]
-clap = "3"
+members = [
+  "i6-pack",
+  "i6",
 
-# for http and https commands
-tokio = { version = "1", features = ["full"] }
-# warp = "0.3"
-tracing-subscriber = "0.3"
-# for https command
-warp = { version = "0.3", features = ["default", "tls"] }
-openssl = "0.10"
+  # Internal
+  # "examples",
+]
 
-# for db command
-rapiddb-web = "0.1"
-
-[lints.rust]
+[workspace.lints.rust]
 unused_parens = "allow"
+unused_imports = "allow"
 
-[lints.clippy]
+[workspace.lints.clippy]
 needless_return = "allow"
+implicit_saturating_sub = "allow"
+single_component_path_imports = "allow"
