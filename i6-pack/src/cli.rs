@@ -1,6 +1,6 @@
-use crate::utils;
 use crate::compression;
 use crate::encryption;
+use crate::utils;
 
 pub fn run(action: &str, target: &str, password: &str) -> std::io::Result<()> {
   // Validate and sanitize the target path
