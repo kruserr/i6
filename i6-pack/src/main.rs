@@ -6,8 +6,8 @@ use clap::{Arg, Command as ClapCommand};
 use std::io;
 
 fn main() -> io::Result<()> {
-  let matches = ClapCommand::new("encryptor")
-    .version("1.0")
+  let matches = ClapCommand::new("i6-pack")
+    .version("0.0.1")
     .author("kruserr")
     .about(
       "Compress and encrypt a folder, or decrypt and decompress an archive",
