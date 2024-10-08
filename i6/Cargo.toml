@@ -2,6 +2,7 @@
 name = "i6"
 version = "0.1.9" # prepare_release.sh
 edition = "2021"
+default-run = "i6"
 license = "AGPL-3.0"
 authors = ["kruserr"]
 readme = "README.md"
@@ -9,6 +10,9 @@ repository = "https://github.com/kruserr/i6"
 description = "A collection of tools"
 keywords = ["cli", "terminal", "utility", "tool", "command"]
 categories = ["command-line-interface", "command-line-utilities", "development-tools"]
+
+[lints]
+workspace = true
 
 [dependencies]
 clap = "3"
@@ -23,9 +27,3 @@ openssl = "0.10"
 
 # for db command
 rapiddb-web = "0.1"
-
-[lints.rust]
-unused_parens = "allow"
-
-[lints.clippy]
-needless_return = "allow"

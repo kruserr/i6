@@ -2,6 +2,10 @@
 name = "i6-pack"
 version = "0.0.1"
 edition = "2021"
+publish = false
+
+[lints]
+workspace = true
 
 [dependencies]
 clap = "4"
