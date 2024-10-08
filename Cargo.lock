@@ -636,7 +636,7 @@ dependencies = [
 
 [[package]]
 name = "i6"
-version = "0.1.9"
+version = "0.1.10"
 dependencies = [
  "clap 3.2.25",
  "i6-pack",
@@ -649,7 +649,7 @@ dependencies = [
 
 [[package]]
 name = "i6-pack"
-version = "0.1.9"
+version = "0.1.10"
 dependencies = [
  "aes-gcm",
  "argon2",
