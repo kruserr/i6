@@ -75,4 +75,4 @@ jobs:
         uses: Swatinem/rust-cache@v2
       - name: Publish
         run: |
-          cargo publish --token ${{ secrets.CARGO_TOKEN }}
+          cargo publish -p i6 --token ${{ secrets.CARGO_TOKEN }}
