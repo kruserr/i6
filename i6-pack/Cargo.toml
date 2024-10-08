@@ -2,7 +2,9 @@
 name = "i6-pack"
 version = "0.1.10" # prepare_release.sh
 edition = "2021"
+license = "AGPL-3.0"
 readme = "../README.md"
+description = "Compress and encrypt a folder, or decrypt and decompress an archive"
 
 [lints]
 workspace = true
