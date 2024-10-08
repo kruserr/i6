@@ -639,6 +639,7 @@ name = "i6"
 version = "0.1.9"
 dependencies = [
  "clap 3.2.25",
+ "i6-pack",
  "openssl",
  "rapiddb-web",
  "tokio",
@@ -648,7 +649,7 @@ dependencies = [
 
 [[package]]
 name = "i6-pack"
-version = "0.0.1"
+version = "0.1.9"
 dependencies = [
  "aes-gcm",
  "argon2",
