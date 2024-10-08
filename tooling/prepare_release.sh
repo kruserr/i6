@@ -1,4 +1,10 @@
 #!/usr/bin/env bash
+
+# Example
+# ```sh
+# ./prepare_release.sh 0.1.25
+# ```
+
 set -Eeuo pipefail
 
 ci () {
@@ -8,9 +14,10 @@ ci () {
 }
 
 bump_version () {
-  # update the Cargo.toml version of the workspace
+  # update the Cargo.toml version of the workspaces
   msg="# prepare_release.sh"
-  sed "s/^version = .* $msg$/version = \"${1#v}\" $msg/" -i Cargo.toml
+
+  sed "s/^version = .* $msg$/version = \"${1#v}\" $msg/" -i i6/Cargo.toml
 
   cargo check
 }
@@ -24,7 +31,7 @@ prepare_tag () {
     - {% if commit.breaking %}(breaking) {% endif %}{{ commit.message | upper_first }} ({{ commit.id | truncate(length=7, end=\"\") }})\
   {% endfor %}
   {% endfor %}"
-  changelog=$(git-cliff --config git-cliff-detailed.toml --unreleased --strip all)
+  changelog=$(git-cliff --config tooling/git-cliff-detailed.toml --unreleased --strip all)
   
   git add -A && git commit -m "chore(release): prepare for $1"
 
@@ -33,7 +40,7 @@ prepare_tag () {
   git tag -v "$1"
 }
 
-# takes the tag as an argument (e.g. v0.1.0)
+# takes the tag as an argument (e.g. 0.1.0)
 if [ -n $1 ]; then
   if [ $1 == "init" ]; then
     if [ -n $2 ]; then
@@ -41,7 +48,7 @@ if [ -n $1 ]; then
 
       bump_version $2
       
-      git-cliff --tag "$2" > CHANGELOG.md
+      git-cliff --config tooling/cliff.toml --tag "$2" > CHANGELOG.md
 
       prepare_tag $2
     else
@@ -52,7 +59,7 @@ if [ -n $1 ]; then
     
     bump_version $1
     
-    git-cliff --unreleased --tag "$1" --prepend CHANGELOG.md
+    git-cliff --config tooling/cliff.toml --unreleased --tag "$1" --prepend CHANGELOG.md
 
     prepare_tag $1
   fi

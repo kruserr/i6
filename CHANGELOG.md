@@ -2,6 +2,29 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.10] - 2024-10-08
+
+### Bug Fixes
+
+- Update name
+
+### Features
+
+- Add pack command
+
+### Miscellaneous Tasks
+
+- Init i6-pack migration
+- Init i6-pack migration
+- Set up workspace
+- Set up workspace
+- Bump version to 0.1.10
+- Update deps
+
+### Styling
+
+- Fmt
+
 ## [0.1.9] - 2024-09-22
 
 ### Ci

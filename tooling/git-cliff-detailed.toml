@@ -14,10 +14,19 @@ body = """
 {% else %}\
     ## [unreleased]
 {% endif %}\
+{% if previous %}\
+    {% if previous.commit_id %}
+        [{{ previous.commit_id | truncate(length=7, end="") }}]({{ previous.commit_id }})...\
+            [{{ commit_id | truncate(length=7, end="") }}]({{ commit_id }})
+    {% endif %}\
+{% endif %}\
 {% for group, commits in commits | group_by(attribute="group") %}
     ### {{ group | upper_first }}
     {% for commit in commits %}
-        - {% if commit.breaking %}[**breaking**] {% endif %}{{ commit.message | upper_first }}\
+        - {{ commit.message | upper_first }} ([{{ commit.id | truncate(length=7, end="") }}]({{ commit.id }}))\
+          {% for footer in commit.footers -%}
+            , {{ footer.token }}{{ footer.separator }}{{ footer.value }}\
+          {% endfor %}\
     {% endfor %}
 {% endfor %}\n
 """
@@ -35,10 +44,6 @@ conventional_commits = true
 filter_unconventional = true
 # process each line of a commit as an individual commit
 split_commits = false
-# regex for preprocessing the commit messages
-commit_preprocessors = [
-    { pattern = '\((\w+\s)?#([0-9]+)\)', replace = "([#${2}](https://github.com/orhun/git-cliff/issues/${2}))"},
-]
 # regex for parsing and grouping commits
 commit_parsers = [
     { message = "^feat", group = "Features"},
@@ -57,14 +62,12 @@ protect_breaking_commits = false
 # filter out the commits that are not matched by commit parsers
 filter_commits = false
 # glob pattern for matching git tags
-tag_pattern = "v[0-9]*"
+tag_pattern = "[0-9]*"
 # regex for skipping tags
-skip_tags = "v0.1.0-beta.1"
+skip_tags = "0.1.0-beta.1"
 # regex for ignoring tags
 ignore_tags = ""
 # sort the tags chronologically
 date_order = false
 # sort the commits inside sections by oldest/newest order
 sort_commits = "oldest"
-# limit the number of commits included in the changelog.
-# limit_commits = 42

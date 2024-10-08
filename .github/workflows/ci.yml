@@ -8,10 +8,6 @@ on:
     branches:
       - main
 
-env:
-  IMAGE_NAME: i6
-  IMAGE_LATEST: docker.pkg.github.com/kruserr/i6/i6:latest
-
 jobs:
   rustfmt:
     name: Formatting
@@ -43,48 +39,3 @@ jobs:
         uses: Swatinem/rust-cache@v2
       - name: Test
         run: cargo test
-
-  publish-docker:
-    name: Publish on GitHub Packages and Docker Hub
-    runs-on: ubuntu-22.04
-    if: github.event_name == 'push'
-    permissions:
-      contents: read
-      packages: write
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-      - name: Build image
-        run: |
-          docker build \
-            --cache-from $IMAGE_LATEST \
-            --build-arg BUILDKIT_INLINE_CACHE=1 \
-            --tag $IMAGE_NAME .
-      - name: Login to GitHub Packages
-        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login docker.pkg.github.com -u ${{ github.actor }} --password-stdin
-      - name: Push image to GitHub Packages
-        run: |
-          IMAGE_ID=docker.pkg.github.com/${{ github.repository }}/$IMAGE_NAME
-
-          # Change all uppercase to lowercase
-          IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
-
-          # Use Docker `latest` tag convention
-          VERSION=latest
-
-          docker tag $IMAGE_NAME $IMAGE_ID:$VERSION
-          docker push $IMAGE_ID:$VERSION
-      - name: Login to Docker Hub
-        run: echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login docker.io -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
-      - name: Push image to Docker Hub
-        run: |
-          IMAGE_ID=docker.io/${{ github.repository }}
-
-          # Change all uppercase to lowercase
-          IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
-
-          # Use Docker `latest` tag convention
-          VERSION=latest
-
-          docker tag $IMAGE_NAME $IMAGE_ID:$VERSION
-          docker push $IMAGE_ID:$VERSION
