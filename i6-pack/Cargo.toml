@@ -1,0 +1,18 @@
+[package]
+name = "i6-pack"
+version = "0.1.10"
+edition = "2021"
+publish = false
+
+[lints]
+workspace = true
+
+[dependencies]
+clap = "4"
+tar = "0.4"
+zstd = "0.13"
+aes-gcm = "0.10"
+rand = "0.8"
+hmac = "0.12"
+uuid = {version = "1", features = ["v4"]}
+argon2 = "0.5"

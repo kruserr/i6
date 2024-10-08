@@ -1,11 +1,11 @@
-use std::error::Error;
-
 use clap::{value_parser, App, Arg, SubCommand};
+use std::error::Error;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
   let http_id = "http";
   let https_id = "https";
+  let pack_id = "pack";
 
   let matches = App::new("i6")
     .version(env!("CARGO_PKG_VERSION"))
@@ -84,21 +84,41 @@ async fn main() -> Result<(), Box<dyn Error>> {
             ),
         ),
     )
+    .subcommand(
+      SubCommand::with_name(pack_id)
+        .about(
+          "Compress and encrypt a folder, or decrypt and decompress an archive",
+        )
+        .arg(
+          Arg::with_name("action")
+            .help("Action to perform: pack or unpack")
+            .required(true)
+            .index(1),
+        )
+        .arg(
+          Arg::with_name("target")
+            .help("Folder to compress and encrypt, or to extract to")
+            .required(true)
+            .index(2),
+        )
+        .arg(
+          Arg::with_name("password")
+            .help("Password for encryption/decryption")
+            .required(true)
+            .index(3),
+        ),
+    )
     .get_matches();
 
   if let Some(matches) = matches.subcommand_matches(http_id) {
     println!("http, {:?}", matches);
-
     let port = *matches.get_one::<u16>("port").unwrap_or(&3030);
-
     i6::http::create_server_http(port).await?;
   }
 
   if let Some(matches) = matches.subcommand_matches(https_id) {
     println!("https, {:?}", matches);
-
     let port = *matches.get_one::<u16>("port").unwrap_or(&3030);
-
     i6::http::create_server_https(port).await?;
   }
 
@@ -132,5 +152,13 @@ async fn main() -> Result<(), Box<dyn Error>> {
     }
   }
 
-  return Ok(());
+  if let Some(matches) = matches.subcommand_matches(pack_id) {
+    let action = matches.value_of("action").unwrap();
+    let target = matches.value_of("target").unwrap();
+    let password = matches.value_of("password").unwrap();
+
+    i6_pack::cli::run(action, target, password)?;
+  }
+
+  Ok(())
 }
