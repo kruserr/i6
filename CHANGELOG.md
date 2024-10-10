@@ -2,6 +2,26 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.12] - 2024-10-10
+
+### Documentation
+
+- Consolidate and update docs, include features and roadmap
+
+### Features
+
+- Make i6 pack encryption optional and take the password with stdin
+- Pack and unpack commands directly
+- Migrate to clap v4
+
+### Styling
+
+- Fmt
+
+### Build
+
+- Disable rapiddb-web and update deps
+
 ## [0.1.11] - 2024-10-08
 
 ### Documentation
