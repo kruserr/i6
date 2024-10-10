@@ -7,7 +7,7 @@ license = "AGPL-3.0"
 authors = ["kruserr"]
 readme = "../README.md"
 repository = "https://github.com/kruserr/i6"
-description = "A collection of tools"
+description = "A collection of cross platform portable cli tools"
 keywords = ["cli", "terminal", "utility", "tool", "command"]
 categories = ["command-line-interface", "command-line-utilities", "development-tools"]
 

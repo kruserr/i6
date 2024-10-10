@@ -4,7 +4,7 @@ version = "0.1.12" # prepare_release.sh
 edition = "2021"
 license = "AGPL-3.0"
 readme = "../README.md"
-description = "Compress and encrypt a folder, or decrypt and decompress an archive"
+description = "A tool to compress and optionally encrypt files"
 
 [lints]
 workspace = true
@@ -19,3 +19,5 @@ hmac = "0.12"
 uuid = {version = "1", features = ["v4"]}
 argon2 = "0.5"
 rpassword = "7"
+walkdir = "2"
+num_cpus = "1"
