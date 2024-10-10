@@ -28,7 +28,7 @@ openssl = "0.10"
 i6-pack = { version = "0.1", path = "../i6-pack" }
 
 # for db command
-rapiddb-web = "0.1"
+# rapiddb-web = "0.1"
 
 # for reader command
 rustic-reader = "0.1"
