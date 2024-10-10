@@ -23,16 +23,17 @@ fn main() -> io::Result<()> {
         .index(2),
     )
     .arg(
-      Arg::new("password")
-        .help("Password for encryption/decryption")
-        .required(true)
-        .index(3),
+      Arg::new("encrypt")
+        .help("Flag to indicate encryption/decryption")
+        .short('e')
+        .long("encrypt")
+        .action(clap::ArgAction::SetTrue),
     )
     .get_matches();
 
   let action = matches.get_one::<String>("action").unwrap();
   let target = matches.get_one::<String>("target").unwrap();
-  let password = matches.get_one::<String>("password").unwrap();
+  let encrypt = matches.get_flag("encrypt");
 
-  cli::run(action, target, password)
+  cli::run(action, target, encrypt)
 }

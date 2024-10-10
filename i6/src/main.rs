@@ -102,10 +102,11 @@ async fn main() -> Result<(), Box<dyn Error>> {
             .index(2),
         )
         .arg(
-          Arg::with_name("password")
-            .help("Password for encryption/decryption")
-            .required(true)
-            .index(3),
+          Arg::with_name("encrypt")
+            .help("Flag to indicate encryption/decryption")
+            .short('e')
+            .long("encrypt")
+            .takes_value(false),
         ),
     )
     .get_matches();
@@ -155,9 +156,9 @@ async fn main() -> Result<(), Box<dyn Error>> {
   if let Some(matches) = matches.subcommand_matches(pack_id) {
     let action = matches.value_of("action").unwrap();
     let target = matches.value_of("target").unwrap();
-    let password = matches.value_of("password").unwrap();
+    let encrypt = matches.is_present("encrypt");
 
-    i6_pack::cli::run(action, target, password)?;
+    i6_pack::cli::run(action, target, encrypt)?;
   }
 
   Ok(())
