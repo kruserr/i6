@@ -6,6 +6,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
   let http_id = "http";
   let https_id = "https";
   let pack_id = "pack";
+  let unpack_id = "unpack";
 
   let matches = App::new("i6")
     .version(env!("CARGO_PKG_VERSION"))
@@ -87,19 +88,32 @@ async fn main() -> Result<(), Box<dyn Error>> {
     .subcommand(
       SubCommand::with_name(pack_id)
         .about(
-          "Compress and encrypt a folder, or decrypt and decompress an archive",
-        )
-        .arg(
-          Arg::with_name("action")
-            .help("Action to perform: pack or unpack")
-            .required(true)
-            .index(1),
+          "Compress and encrypt",
         )
         .arg(
           Arg::with_name("target")
             .help("Folder to compress and encrypt, or to extract to")
             .required(true)
-            .index(2),
+            .index(1),
+        )
+        .arg(
+          Arg::with_name("encrypt")
+            .help("Flag to indicate encryption/decryption")
+            .short('e')
+            .long("encrypt")
+            .takes_value(false),
+        ),
+    )
+    .subcommand(
+      SubCommand::with_name(unpack_id)
+        .about(
+          "Decrypt and decompress",
+        )
+        .arg(
+          Arg::with_name("target")
+            .help("Folder to compress and encrypt, or to extract to")
+            .required(true)
+            .index(1),
         )
         .arg(
           Arg::with_name("encrypt")
@@ -154,11 +168,17 @@ async fn main() -> Result<(), Box<dyn Error>> {
   }
 
   if let Some(matches) = matches.subcommand_matches(pack_id) {
-    let action = matches.value_of("action").unwrap();
     let target = matches.value_of("target").unwrap();
     let encrypt = matches.is_present("encrypt");
 
-    i6_pack::cli::run(action, target, encrypt)?;
+    i6_pack::cli::run("pack", target, encrypt)?;
+  }
+
+  if let Some(matches) = matches.subcommand_matches(unpack_id) {
+    let target = matches.value_of("target").unwrap();
+    let encrypt = matches.is_present("encrypt");
+
+    i6_pack::cli::run("unpack", target, encrypt)?;
   }
 
   Ok(())
