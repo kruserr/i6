@@ -12,7 +12,7 @@ workspace = true
 [dependencies]
 clap = "4"
 tar = "0.4"
-zstd = "0.13"
+zstd = {version = "0.13", features = ["zstdmt"]}
 aes-gcm = "0.10"
 rand = "0.8"
 hmac = "0.12"

@@ -1,9 +1,10 @@
-use std::fs::File;
+use std::fs::{self, File};
 use std::io::{self, Write};
 use std::path::Path;
 use tar::Builder;
 use walkdir::WalkDir;
 use zstd::stream::{decode_all, encode_all};
+use zstd::Encoder;
 
 pub fn create_tar_archive<P: AsRef<Path>>(
     folder: P,
@@ -70,14 +71,21 @@ pub fn compress_tar_file(
     let compressed = File::create(compressed_file)?;
     let mut tar_reader = tar;
     let mut compressed_writer = compressed;
-    // Use a higher compression level (e.g., 19)
-    let compression_level = 19;
-    let compressed_data = encode_all(&mut tar_reader, compression_level)?;
-    compressed_writer.write_all(&compressed_data)?;
+    let compression_level = 18;
+
+    let mut zstd = zstd::stream::write::Encoder::new(&mut compressed_writer, compression_level)?;
+    zstd.multithread(num_cpus::get() as u32)?;
+
+    zstd.long_distance_matching(true)?;
+    zstd.window_log(31)?;
+
+    io::copy(&mut tar_reader, &mut zstd)?;
+    zstd.finish()?;
+
     Ok(())
 }
 
-pub fn decompress_file(
+pub fn decompress_file_v1(
   compressed_file: &str,
   output_file: &str,
 ) -> io::Result<()> {
@@ -85,5 +93,22 @@ pub fn decompress_file(
   let decompressed_data = decode_all(compressed)?;
   let mut decompressed = File::create(output_file)?;
   decompressed.write_all(&decompressed_data)?;
+  Ok(())
+}
+
+pub fn decompress_file(
+  compressed_file: &str,
+  output_file: &str,
+) -> io::Result<()> {
+  let compressed = File::open(compressed_file)?;
+  let mut compressed_reader = compressed;
+  let mut decompressed_writer = File::create(output_file)?;
+
+
+  let mut zstd = zstd::stream::read::Decoder::new(&mut compressed_reader)?;
+  zstd.window_log_max(31)?;
+
+  io::copy(&mut zstd, &mut decompressed_writer)?;
+
   Ok(())
 }
