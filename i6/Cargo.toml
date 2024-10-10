@@ -15,7 +15,7 @@ categories = ["command-line-interface", "command-line-utilities", "development-t
 workspace = true
 
 [dependencies]
-clap = "3"
+clap = "4"
 
 # for http and https commands
 tokio = { version = "1", features = ["full"] }
