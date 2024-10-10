@@ -8,12 +8,14 @@ pub fn run(action: &str, target: &str, encrypt: bool) -> std::io::Result<()> {
   let password = &if encrypt {
     print!("Enter password: ");
     std::io::stdout().flush().expect("Failed to flush stdout");
-    let password1 = rpassword::read_password().expect("Failed to read password");
+    let password1 =
+      rpassword::read_password().expect("Failed to read password");
 
     if (action == "pack") {
       print!("Confirm password: ");
       std::io::stdout().flush().expect("Failed to flush stdout");
-      let password2 = rpassword::read_password().expect("Failed to read password");
+      let password2 =
+        rpassword::read_password().expect("Failed to read password");
 
       if password1 != password2 {
         eprintln!("Passwords do not match.");

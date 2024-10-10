@@ -87,9 +87,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
     )
     .subcommand(
       SubCommand::with_name(pack_id)
-        .about(
-          "Compress and encrypt",
-        )
+        .about("Compress and encrypt")
         .arg(
           Arg::with_name("target")
             .help("Folder to compress and encrypt, or to extract to")
@@ -106,9 +104,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
     )
     .subcommand(
       SubCommand::with_name(unpack_id)
-        .about(
-          "Decrypt and decompress",
-        )
+        .about("Decrypt and decompress")
         .arg(
           Arg::with_name("target")
             .help("Folder to compress and encrypt, or to extract to")
