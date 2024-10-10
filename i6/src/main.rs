@@ -1,4 +1,4 @@
-use clap::{value_parser, App, Arg, SubCommand};
+use clap::{value_parser, Arg, Command};
 use std::error::Error;
 
 #[tokio::main]
@@ -8,115 +8,115 @@ async fn main() -> Result<(), Box<dyn Error>> {
   let pack_id = "pack";
   let unpack_id = "unpack";
 
-  let matches = App::new("i6")
+  let matches = Command::new("i6")
     .version(env!("CARGO_PKG_VERSION"))
     .author(env!("CARGO_PKG_AUTHORS"))
     .about(env!("CARGO_PKG_DESCRIPTION"))
     .subcommand(
-      SubCommand::with_name(http_id).about("Start a static http server").arg(
-        Arg::with_name("port")
+      Command::new(http_id).about("Start a static http server").arg(
+        Arg::new("port")
           .index(1)
           .default_value("3030")
           .value_parser(value_parser!(u16)),
       ),
     )
     .subcommand(
-      SubCommand::with_name(https_id).about("Start a static https server").arg(
-        Arg::with_name("port")
+      Command::new(https_id).about("Start a static https server").arg(
+        Arg::new("port")
           .index(1)
           .default_value("3030")
           .value_parser(value_parser!(u16)),
       ),
     )
     .subcommand(
-      SubCommand::with_name("timer")
+      Command::new("timer")
         .about("Manages timers")
-        .arg(Arg::with_name("minutes").index(1).takes_value(true))
-        .arg(Arg::with_name("name").index(2).takes_value(true))
+        .arg(Arg::new("minutes").index(1).value_parser(value_parser!(String)))
+        .arg(Arg::new("name").index(2).value_parser(value_parser!(String)))
         .subcommand(
-          SubCommand::with_name("create")
+          Command::new("create")
             .about("Creates a new timer")
             .arg(
-              Arg::with_name("minutes")
+              Arg::new("minutes")
                 .short('m')
                 .long("minutes")
-                .takes_value(true)
+                .value_parser(value_parser!(String))
                 .help("Sets the duration of the timer in minutes"),
             )
             .arg(
-              Arg::with_name("name")
+              Arg::new("name")
                 .short('n')
                 .long("name")
-                .takes_value(true)
+                .value_parser(value_parser!(String))
                 .help("Sets the name of the timer"),
             ),
         )
+        .subcommand(Command::new("list").about("Lists all timers").alias("ls"))
         .subcommand(
-          SubCommand::with_name("list").about("Lists all timers").alias("ls"),
-        )
-        .subcommand(
-          SubCommand::with_name("stop")
+          Command::new("stop")
             .about("Stops a timer")
             .arg(
-              Arg::with_name("name")
+              Arg::new("name")
                 .short('n')
                 .long("name")
-                .takes_value(true)
+                .value_parser(value_parser!(String))
                 .help("Stops the timer with the given name"),
             )
             .arg(
-              Arg::with_name("all")
+              Arg::new("all")
                 .short('a')
                 .long("all")
-                .takes_value(false)
+                .value_parser(value_parser!(bool))
                 .help("Stops all timers"),
             ),
         )
         .subcommand(
-          SubCommand::with_name("history")
+          Command::new("history")
             .about("Shows the history of all timers")
             .alias("log")
             .arg(
-              Arg::with_name("json")
+              Arg::new("json")
                 .short('j')
                 .long("json")
-                .takes_value(false)
+                .value_parser(value_parser!(bool))
                 .help("Prints the history in JSON format"),
             ),
         ),
     )
     .subcommand(
-      SubCommand::with_name(pack_id)
+      Command::new(pack_id)
         .about("Compress and encrypt")
         .arg(
-          Arg::with_name("target")
+          Arg::new("target")
             .help("Folder to compress and encrypt, or to extract to")
             .required(true)
             .index(1),
         )
         .arg(
-          Arg::with_name("encrypt")
+          Arg::new("encrypt")
             .help("Flag to indicate encryption/decryption")
             .short('e')
             .long("encrypt")
-            .takes_value(false),
+            .action(clap::ArgAction::SetTrue)
+            .default_value("false"),
         ),
     )
     .subcommand(
-      SubCommand::with_name(unpack_id)
+      Command::new(unpack_id)
         .about("Decrypt and decompress")
         .arg(
-          Arg::with_name("target")
+          Arg::new("target")
             .help("Folder to compress and encrypt, or to extract to")
             .required(true)
             .index(1),
         )
         .arg(
-          Arg::with_name("encrypt")
+          Arg::new("encrypt")
             .help("Flag to indicate encryption/decryption")
             .short('e')
             .long("encrypt")
-            .takes_value(false),
+            .action(clap::ArgAction::SetTrue)
+            .default_value("false"),
         ),
     )
     .get_matches();
@@ -135,44 +135,45 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
   if let Some(matches) = matches.subcommand_matches("timer") {
     if let Some(matches) = matches.subcommand_matches("create") {
-      let minutes = matches.value_of("minutes").unwrap_or_default();
-      let name = matches.value_of("name").unwrap_or_default();
+      let temp_string = &String::new();
+      let minutes = matches.get_one::<String>("minutes").unwrap_or(temp_string);
+      let name = matches.get_one::<String>("name").unwrap_or(temp_string);
       i6::timer::create::create_timer(minutes, name);
     } else if matches.subcommand_matches("list").is_some() {
       i6::timer::list::list_timers();
     } else if let Some(matches) = matches.subcommand_matches("stop") {
-      if matches.is_present("all") {
+      if matches.contains_id("all") {
         i6::timer::stop::stop_all_timers();
       } else {
         i6::timer::stop::stop_timer(
-          matches.value_of("name").unwrap_or_default(),
+          matches.get_one::<String>("name").unwrap_or(&"".to_string()),
         );
       }
     } else if let Some(matches) = matches.subcommand_matches("history") {
-      if matches.is_present("json") {
+      if matches.contains_id("json") {
         i6::timer::print::print_history_json();
       } else {
         i6::timer::print::print_history();
       }
     } else if let (Some(minutes), Some(name)) =
-      (matches.value_of("minutes"), matches.value_of("name"))
+      (matches.get_one::<String>("minutes"), matches.get_one::<String>("name"))
     {
       i6::timer::create::create_timer(minutes, name);
-    } else if let Some(minutes) = matches.value_of("minutes") {
+    } else if let Some(minutes) = matches.get_one::<String>("minutes") {
       i6::timer::create::create_timer(minutes, "");
     }
   }
 
   if let Some(matches) = matches.subcommand_matches(pack_id) {
-    let target = matches.value_of("target").unwrap();
-    let encrypt = matches.is_present("encrypt");
+    let target = matches.get_one::<String>("target").unwrap();
+    let encrypt = matches.get_flag("encrypt");
 
     i6_pack::cli::run("pack", target, encrypt)?;
   }
 
   if let Some(matches) = matches.subcommand_matches(unpack_id) {
-    let target = matches.value_of("target").unwrap();
-    let encrypt = matches.is_present("encrypt");
+    let target = matches.get_one::<String>("target").unwrap();
+    let encrypt = matches.get_flag("encrypt");
 
     i6_pack::cli::run("unpack", target, encrypt)?;
   }

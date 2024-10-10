@@ -15,7 +15,7 @@ categories = ["command-line-interface", "command-line-utilities", "development-t
 workspace = true
 
 [dependencies]
-clap = "3"
+clap = "4"
 
 # for http and https commands
 tokio = { version = "1", features = ["full"] }
@@ -31,4 +31,4 @@ i6-pack = { version = "0.1", path = "../i6-pack" }
 # rapiddb-web = "0.1"
 
 # for reader command
-rustic-reader = "0.1"
+# rustic-reader = "0.1"
