@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.14] - 2024-10-11
+
+### Features
+
+- I6 http remove openssl and use rcgen for self signed certs
+
+### Ci
+
+- Update tooling
+
 ## [0.1.13] - 2024-10-11
 
 ### Bug Fixes
