@@ -2,6 +2,28 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.13] - 2024-10-11
+
+### Bug Fixes
+
+- Skip missing symlinks
+
+### Features
+
+- Multi threaded zstd compression and use long distance matching with window log 31
+
+### Styling
+
+- Fmt
+
+### Build
+
+- Update
+
+### Ci
+
+- Trigger cd on non v labled tags
+
 ## [0.1.12] - 2024-10-10
 
 ### Documentation
