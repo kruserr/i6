@@ -3,8 +3,12 @@ name = "i6-pack"
 version = "0.1.14" # prepare_release.sh
 edition = "2021"
 license = "AGPL-3.0"
+authors = ["kruserr"]
 readme = "../README.md"
+repository = "https://github.com/kruserr/i6"
 description = "A tool to compress and optionally encrypt files"
+keywords = ["cli", "terminal", "utility", "tool", "command"]
+categories = ["command-line-interface", "command-line-utilities", "development-tools"]
 
 [lints]
 workspace = true
