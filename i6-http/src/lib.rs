@@ -6,6 +6,7 @@ use std::error::Error;
 use std::fs::{File, OpenOptions};
 use std::io::Write;
 use std::path::Path;
+use std::thread::sleep;
 use tracing_subscriber::fmt::format::FmtSpan;
 use warp::Filter;
 
@@ -44,17 +45,19 @@ pub fn generate_self_signed_cert_key_files(
   Ok(())
 }
 
-pub async fn create_server_http(port: u16) -> Result<(), Box<dyn Error>> {
+pub fn create_server_http(port: u16) -> Result<(), Box<dyn Error>> {
   tracing_subscriber::fmt().with_span_events(FmtSpan::CLOSE).init();
 
-  warp::serve(warp::fs::dir(".").with(warp::trace::request()))
-    .run(([0, 0, 0, 0], port))
-    .await;
+  let rt = tokio::runtime::Runtime::new()?;
+  rt.block_on(
+    warp::serve(warp::fs::dir(".").with(warp::trace::request()))
+      .run(([0, 0, 0, 0], port)),
+  );
 
   Ok(())
 }
 
-pub async fn create_server_https(port: u16) -> Result<(), Box<dyn Error>> {
+pub fn create_server_https(port: u16) -> Result<(), Box<dyn Error>> {
   let key_file_path = &format!(
     "{}/i6-http-d4cd362e-89ef-4267-9e35-4cc8a79b60eb/key.pem",
     std::env::temp_dir().to_str().unwrap_or(".")
@@ -69,12 +72,14 @@ pub async fn create_server_https(port: u16) -> Result<(), Box<dyn Error>> {
 
   tracing_subscriber::fmt().with_span_events(FmtSpan::CLOSE).init();
 
-  warp::serve(warp::fs::dir(".").with(warp::trace::request()))
-    .tls()
-    .cert_path(cert_file_path)
-    .key_path(key_file_path)
-    .run(([0, 0, 0, 0], port))
-    .await;
+  let rt = tokio::runtime::Runtime::new()?;
+  rt.block_on(
+    warp::serve(warp::fs::dir(".").with(warp::trace::request()))
+      .tls()
+      .cert_path(cert_file_path)
+      .key_path(key_file_path)
+      .run(([0, 0, 0, 0], port)),
+  );
 
   Ok(())
 }

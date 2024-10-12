@@ -3,6 +3,7 @@ resolver = "2"
 
 members = [
   "i6-pack",
+  "i6-http",
   "i6-shell",
   "i6",
 

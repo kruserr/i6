@@ -2,8 +2,7 @@ use clap::{value_parser, Arg, Command};
 use i6_shell::lang::DefaultInterpreter;
 use std::error::Error;
 
-#[tokio::main]
-async fn main() -> Result<(), Box<dyn Error>> {
+fn main() -> Result<(), Box<dyn Error>> {
   let http_id = "http";
   let https_id = "https";
   let pack_id = "pack";
@@ -127,13 +126,13 @@ async fn main() -> Result<(), Box<dyn Error>> {
   if let Some(matches) = matches.subcommand_matches(http_id) {
     println!("http, {:?}", matches);
     let port = *matches.get_one::<u16>("port").unwrap_or(&3030);
-    i6::http::create_server_http(port).await?;
+    i6_http::create_server_http(port)?;
   }
 
   if let Some(matches) = matches.subcommand_matches(https_id) {
     println!("https, {:?}", matches);
     let port = *matches.get_one::<u16>("port").unwrap_or(&3030);
-    i6::http::create_server_https(port).await?;
+    i6_http::create_server_https(port)?;
   }
 
   if let Some(_matches) = matches.subcommand_matches(sh_id) {

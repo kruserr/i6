@@ -660,8 +660,15 @@ name = "i6"
 version = "0.1.16"
 dependencies = [
  "clap",
+ "i6-http",
  "i6-pack",
  "i6-shell",
+]
+
+[[package]]
+name = "i6-http"
+version = "0.1.16"
+dependencies = [
  "rcgen",
  "tokio",
  "tracing-subscriber",
