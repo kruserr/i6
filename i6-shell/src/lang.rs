@@ -55,7 +55,7 @@ impl Lexer for DefaultLexer {
 
     for word in input.split_whitespace() {
       let token_type = match word {
-        "&&" | "||" | "|" | ">" | ">>" => TokenType::Operator,
+        "&&" | "||" | "|" | ">" | ">>" | "<" => TokenType::Operator,
         _ if tokens.is_empty()
           || matches!(
             tokens.last().unwrap().token_type,
@@ -237,7 +237,7 @@ impl Interpreter for DefaultInterpreter {
         _ => eprintln!("Unknown operator"),
       },
       ASTNode::Pipe { left, right } => {
-        let first_command = if let ASTNode::Command { name, args } = *left {
+        let first_command_output = if let ASTNode::Command { name, args } = *left {
           let args: Vec<String> = args
             .into_iter()
             .map(|arg| {
@@ -250,16 +250,41 @@ impl Interpreter for DefaultInterpreter {
             })
             .collect();
 
-          std::process::Command::new(name)
-            .args(args)
-            .stdout(std::process::Stdio::piped())
-            .spawn()
-            .expect("Failed to start first command")
+          let args_str = &args.join(" ");
+
+          if let Some(custom_command) = custom_commands.get(&name) {
+            custom_command.run(args_str).unwrap_or_default()
+          } else if let Ok(lock) = crate::command::DEFAULT_COMMANDS.lock() {
+            if let Ok(commands) = lock.as_ref() {
+              if let Some(command) = commands.get(&name) {
+                command.run(args_str).unwrap_or_default()
+              } else {
+                {
+                  let child = std::process::Command::new(&name).args(args).spawn();
+
+                  match child {
+                    Ok(mut child) => {
+                      child.wait().unwrap();
+                    }
+                    Err(e) => eprintln!("{}", e),
+                  }
+                }
+
+                return;
+              }
+            } else {
+              eprintln!("Failed to acquire lock");
+              return;
+            }
+          } else {
+            eprintln!("Failed to acquire lock");
+            return;
+          }
         } else {
           return;
         };
 
-        let second_command = if let ASTNode::Command { name, args } = *right {
+        if let ASTNode::Command { name, args } = *right {
           let args: Vec<String> = args
             .into_iter()
             .map(|arg| {
@@ -272,23 +297,51 @@ impl Interpreter for DefaultInterpreter {
             })
             .collect();
 
-          println!("{:?}", args);
+          let args_str = &args.join(" ");
 
-          std::process::Command::new(name)
-            .args(args)
-            .stdin(first_command.stdout.unwrap())
-            .stdout(std::process::Stdio::piped())
-            .spawn()
-            .expect("Failed to start second command")
+          if let Some(custom_command) = custom_commands.get(&name) {
+            let _ = custom_command
+              .run(&format!("\"{}\" \"{}\"", args_str, first_command_output))
+              .map(|output| {
+                if !output.is_empty() {
+                  println!("{output}");
+                }
+              })
+              .map_err(|e| eprintln!("{e}"));
+          } else if let Ok(lock) = crate::command::DEFAULT_COMMANDS.lock() {
+            if let Ok(commands) = lock.as_ref() {
+              if let Some(command) = commands.get(&name) {
+                let _ = command
+                  .run(&format!("\"{}\" \"{}\"", args_str, first_command_output))
+                  .map(|output| {
+                    if !output.is_empty() {
+                      println!("{output}");
+                    }
+                  })
+                  .map_err(|e| eprintln!("{e}"));
+              } else {
+                {
+                  let child = std::process::Command::new(&name).args(args).spawn();
+
+                  match child {
+                    Ok(mut child) => {
+                      child.wait().unwrap();
+                    }
+                    Err(e) => eprintln!("{}", e),
+                  }
+                }
+
+                return;
+              }
+            } else {
+              eprintln!("Failed to acquire lock");
+            }
+          } else {
+            eprintln!("Failed to acquire lock");
+          }
         } else {
           return;
-        };
-
-        let output = second_command
-          .wait_with_output()
-          .expect("Failed to wait on second command");
-
-        println!("{}", String::from_utf8_lossy(&output.stdout));
+        }
       }
       _ => eprintln!("Invalid syntax"),
     }
