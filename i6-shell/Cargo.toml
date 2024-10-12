@@ -1,0 +1,23 @@
+[package]
+name = "i6-shell"
+version = "0.1.14" # prepare_release.sh
+edition = "2021"
+license = "AGPL-3.0"
+authors = ["kruserr"]
+readme = "../README.md"
+repository = "https://github.com/kruserr/i6"
+description = "A minimalistic unix like shell with statically linked commands"
+keywords = ["cli", "terminal", "utility", "tool", "command"]
+categories = ["command-line-interface", "command-line-utilities", "development-tools"]
+
+[lints]
+workspace = true
+
+[dependencies]
+walkdir = "2"
+rustyline = "14"
+rustyline-derive = "0.10"
+chrono = "0.4"
+whoami = "1"
+lazy_static = "1"
+shlex = "1"

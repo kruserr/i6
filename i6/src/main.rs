@@ -1,5 +1,6 @@
 use clap::{value_parser, Arg, Command};
 use std::error::Error;
+use i6_shell::lang::DefaultInterpreter;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
@@ -7,6 +8,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
   let https_id = "https";
   let pack_id = "pack";
   let unpack_id = "unpack";
+  let sh_id = "sh";
 
   let matches = Command::new("i6")
     .version(env!("CARGO_PKG_VERSION"))
@@ -27,6 +29,9 @@ async fn main() -> Result<(), Box<dyn Error>> {
           .default_value("3030")
           .value_parser(value_parser!(u16)),
       ),
+    )
+    .subcommand(
+      Command::new(sh_id).about("Start an interactive shell")
     )
     .subcommand(
       Command::new("timer")
@@ -131,6 +136,14 @@ async fn main() -> Result<(), Box<dyn Error>> {
     println!("https, {:?}", matches);
     let port = *matches.get_one::<u16>("port").unwrap_or(&3030);
     i6::http::create_server_https(port).await?;
+  }
+
+  if let Some(_matches) = matches.subcommand_matches(sh_id) {
+    i6_shell::shell_main(
+      i6_shell::lang::DefaultLexer,
+      i6_shell::lang::DefaultParser,
+      i6_shell::lang::DefaultInterpreter,
+    )?;
   }
 
   if let Some(matches) = matches.subcommand_matches("timer") {

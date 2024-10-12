@@ -26,6 +26,7 @@ warp = { version = "0.3", features = ["default", "tls"] }
 rcgen = "0.13"
 
 i6-pack = { version = "0.1", path = "../i6-pack" }
+i6-shell = { version = "0.1", path = "../i6-shell" }
 
 # for db command
 # rapiddb-web = "0.1"
