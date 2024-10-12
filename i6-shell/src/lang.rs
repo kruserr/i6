@@ -237,39 +237,45 @@ impl Interpreter for DefaultInterpreter {
         _ => eprintln!("Unknown operator"),
       },
       ASTNode::Pipe { left, right } => {
-        let first_command_output = if let ASTNode::Command { name, args } = *left {
-          let args: Vec<String> = args
-            .into_iter()
-            .map(|arg| {
-              if let ASTNode::Argument { value } = arg {
-                value
-              } else {
-                eprintln!("Invalid syntax");
-                "".to_owned()
-              }
-            })
-            .collect();
-
-          let args_str = &args.join(" ");
-
-          if let Some(custom_command) = custom_commands.get(&name) {
-            custom_command.run(args_str).unwrap_or_default()
-          } else if let Ok(lock) = crate::command::DEFAULT_COMMANDS.lock() {
-            if let Ok(commands) = lock.as_ref() {
-              if let Some(command) = commands.get(&name) {
-                command.run(args_str).unwrap_or_default()
-              } else {
-                {
-                  let child = std::process::Command::new(&name).args(args).spawn();
-
-                  match child {
-                    Ok(mut child) => {
-                      child.wait().unwrap();
-                    }
-                    Err(e) => eprintln!("{}", e),
-                  }
+        let first_command_output =
+          if let ASTNode::Command { name, args } = *left {
+            let args: Vec<String> = args
+              .into_iter()
+              .map(|arg| {
+                if let ASTNode::Argument { value } = arg {
+                  value
+                } else {
+                  eprintln!("Invalid syntax");
+                  "".to_owned()
                 }
+              })
+              .collect();
 
+            let args_str = &args.join(" ");
+
+            if let Some(custom_command) = custom_commands.get(&name) {
+              custom_command.run(args_str).unwrap_or_default()
+            } else if let Ok(lock) = crate::command::DEFAULT_COMMANDS.lock() {
+              if let Ok(commands) = lock.as_ref() {
+                if let Some(command) = commands.get(&name) {
+                  command.run(args_str).unwrap_or_default()
+                } else {
+                  {
+                    let child =
+                      std::process::Command::new(&name).args(args).spawn();
+
+                    match child {
+                      Ok(mut child) => {
+                        child.wait().unwrap();
+                      }
+                      Err(e) => eprintln!("{}", e),
+                    }
+                  }
+
+                  return;
+                }
+              } else {
+                eprintln!("Failed to acquire lock");
                 return;
               }
             } else {
@@ -277,12 +283,8 @@ impl Interpreter for DefaultInterpreter {
               return;
             }
           } else {
-            eprintln!("Failed to acquire lock");
             return;
-          }
-        } else {
-          return;
-        };
+          };
 
         if let ASTNode::Command { name, args } = *right {
           let args: Vec<String> = args
@@ -312,7 +314,10 @@ impl Interpreter for DefaultInterpreter {
             if let Ok(commands) = lock.as_ref() {
               if let Some(command) = commands.get(&name) {
                 let _ = command
-                  .run(&format!("\"{}\" \"{}\"", args_str, first_command_output))
+                  .run(&format!(
+                    "\"{}\" \"{}\"",
+                    args_str, first_command_output
+                  ))
                   .map(|output| {
                     if !output.is_empty() {
                       println!("{output}");
@@ -321,7 +326,8 @@ impl Interpreter for DefaultInterpreter {
                   .map_err(|e| eprintln!("{e}"));
               } else {
                 {
-                  let child = std::process::Command::new(&name).args(args).spawn();
+                  let child =
+                    std::process::Command::new(&name).args(args).spawn();
 
                   match child {
                     Ok(mut child) => {
