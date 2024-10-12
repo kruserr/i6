@@ -7,6 +7,7 @@ fn main() -> Result<(), Box<dyn Error>> {
   let https_id = "https";
   let pack_id = "pack";
   let unpack_id = "unpack";
+  let timer_id = "timer";
   let sh_id = "sh";
 
   let matches = Command::new("i6")
@@ -31,7 +32,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     )
     .subcommand(Command::new(sh_id).about("Start an interactive shell"))
     .subcommand(
-      Command::new("timer")
+      Command::new(timer_id)
         .about("Manages timers")
         .arg(Arg::new("minutes").index(1).value_parser(value_parser!(String)))
         .arg(Arg::new("name").index(2).value_parser(value_parser!(String)))
@@ -143,34 +144,34 @@ fn main() -> Result<(), Box<dyn Error>> {
     )?;
   }
 
-  if let Some(matches) = matches.subcommand_matches("timer") {
+  if let Some(matches) = matches.subcommand_matches(timer_id) {
     if let Some(matches) = matches.subcommand_matches("create") {
       let temp_string = &String::new();
       let minutes = matches.get_one::<String>("minutes").unwrap_or(temp_string);
       let name = matches.get_one::<String>("name").unwrap_or(temp_string);
-      i6::timer::create::create_timer(minutes, name);
+      i6_timer::create::create_timer(minutes, name);
     } else if matches.subcommand_matches("list").is_some() {
-      i6::timer::list::list_timers();
+      i6_timer::list::list_timers();
     } else if let Some(matches) = matches.subcommand_matches("stop") {
       if matches.contains_id("all") {
-        i6::timer::stop::stop_all_timers();
+        i6_timer::stop::stop_all_timers();
       } else {
-        i6::timer::stop::stop_timer(
+        i6_timer::stop::stop_timer(
           matches.get_one::<String>("name").unwrap_or(&"".to_string()),
         );
       }
     } else if let Some(matches) = matches.subcommand_matches("history") {
       if matches.contains_id("json") {
-        i6::timer::print::print_history_json();
+        i6_timer::print::print_history_json();
       } else {
-        i6::timer::print::print_history();
+        i6_timer::print::print_history();
       }
     } else if let (Some(minutes), Some(name)) =
       (matches.get_one::<String>("minutes"), matches.get_one::<String>("name"))
     {
-      i6::timer::create::create_timer(minutes, name);
+      i6_timer::create::create_timer(minutes, name);
     } else if let Some(minutes) = matches.get_one::<String>("minutes") {
-      i6::timer::create::create_timer(minutes, "");
+      i6_timer::create::create_timer(minutes, "");
     }
   }
 

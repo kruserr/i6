@@ -1,0 +1,16 @@
+[package]
+name = "i6-timer"
+version = "0.1.16" # prepare_release.sh
+edition = "2021"
+license = "AGPL-3.0"
+authors = ["kruserr"]
+readme = "../README.md"
+repository = "https://github.com/kruserr/i6"
+description = "A cli timer tool"
+keywords = ["cli", "terminal", "utility", "tool", "command"]
+categories = ["command-line-interface", "command-line-utilities", "development-tools"]
+
+[lints]
+workspace = true
+
+[dependencies]

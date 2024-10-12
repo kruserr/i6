@@ -19,6 +19,7 @@ clap = "4"
 
 i6-pack = { version = "0.1", path = "../i6-pack" }
 i6-http = { version = "0.1", path = "../i6-http" }
+i6-timer = { version = "0.1", path = "../i6-timer" }
 i6-shell = { version = "0.1", path = "../i6-shell" }
 
 # for db command

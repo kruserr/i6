@@ -663,6 +663,7 @@ dependencies = [
  "i6-http",
  "i6-pack",
  "i6-shell",
+ "i6-timer",
 ]
 
 [[package]]
@@ -703,6 +704,10 @@ dependencies = [
  "shlex",
  "whoami",
 ]
+
+[[package]]
+name = "i6-timer"
+version = "0.1.16"
 
 [[package]]
 name = "iana-time-zone"
