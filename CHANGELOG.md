@@ -2,6 +2,24 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.16] - 2024-10-12
+
+### Bug Fixes
+
+- Pipe opeartor not working on windows
+
+### Miscellaneous Tasks
+
+- Bump version
+
+### Styling
+
+- Fmt
+
+### Ci
+
+- Bump version on i6-shell
+
 ## [0.1.15] - 2024-10-12
 
 ### Features

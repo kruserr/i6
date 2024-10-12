@@ -657,7 +657,7 @@ dependencies = [
 
 [[package]]
 name = "i6"
-version = "0.1.15"
+version = "0.1.16"
 dependencies = [
  "clap",
  "i6-pack",
@@ -670,7 +670,7 @@ dependencies = [
 
 [[package]]
 name = "i6-pack"
-version = "0.1.15"
+version = "0.1.16"
 dependencies = [
  "aes-gcm",
  "argon2",
@@ -687,7 +687,7 @@ dependencies = [
 
 [[package]]
 name = "i6-shell"
-version = "0.1.15"
+version = "0.1.16"
 dependencies = [
  "chrono",
  "lazy_static",
