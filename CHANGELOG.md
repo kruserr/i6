@@ -2,6 +2,24 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.15] - 2024-10-12
+
+### Features
+
+- Shell v1
+
+### Miscellaneous Tasks
+
+- Refactor
+
+### Build
+
+- Add metadata to i6-pack
+
+### Ci
+
+- Publish i6-shell
+
 ## [0.1.14] - 2024-10-11
 
 ### Features
