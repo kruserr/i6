@@ -694,6 +694,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "i6-pack-gui"
+version = "0.1.17"
+dependencies = [
+ "i6-pack",
+]
+
+[[package]]
 name = "i6-shell"
 version = "0.1.17"
 dependencies = [
