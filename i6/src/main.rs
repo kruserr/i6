@@ -1,6 +1,6 @@
 use clap::{value_parser, Arg, Command};
-use std::error::Error;
 use i6_shell::lang::DefaultInterpreter;
+use std::error::Error;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
@@ -30,9 +30,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
           .value_parser(value_parser!(u16)),
       ),
     )
-    .subcommand(
-      Command::new(sh_id).about("Start an interactive shell")
-    )
+    .subcommand(Command::new(sh_id).about("Start an interactive shell"))
     .subcommand(
       Command::new("timer")
         .about("Manages timers")

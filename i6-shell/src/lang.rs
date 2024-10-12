@@ -132,10 +132,8 @@ impl Parser for DefaultParser {
           if token.value == "|" {
             let right = args.pop().unwrap();
             let left = args.pop().unwrap();
-            root = ASTNode::Pipe {
-              left: Box::new(left),
-              right: Box::new(right),
-            };
+            root =
+              ASTNode::Pipe { left: Box::new(left), right: Box::new(right) };
           } else {
             root = ASTNode::Operator { op: token.value, args };
           }
@@ -218,16 +216,15 @@ impl Interpreter for DefaultInterpreter {
           }
         }
 
-        match name.as_str() {
-          command => {
-            let child = std::process::Command::new(command).args(args).spawn();
+        let command = name.as_str();
+        {
+          let child = std::process::Command::new(command).args(args).spawn();
 
-            match child {
-              Ok(mut child) => {
-                child.wait().unwrap();
-              }
-              Err(e) => eprintln!("{}", e),
+          match child {
+            Ok(mut child) => {
+              child.wait().unwrap();
             }
+            Err(e) => eprintln!("{}", e),
           }
         }
       }
@@ -288,8 +285,8 @@ impl Interpreter for DefaultInterpreter {
         };
 
         let output = second_command
-            .wait_with_output()
-            .expect("Failed to wait on second command");
+          .wait_with_output()
+          .expect("Failed to wait on second command");
 
         println!("{}", String::from_utf8_lossy(&output.stdout));
       }

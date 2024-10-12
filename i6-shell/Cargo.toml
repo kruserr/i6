@@ -14,7 +14,6 @@ categories = ["command-line-interface", "command-line-utilities", "development-t
 workspace = true
 
 [dependencies]
-walkdir = "2"
 rustyline = "14"
 rustyline-derive = "0.10"
 chrono = "0.4"

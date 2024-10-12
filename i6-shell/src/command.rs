@@ -1,3 +1,6 @@
+#![allow(non_camel_case_types)]
+#![allow(unused_variables)]
+
 use std::{
   collections::HashMap,
   sync::{Arc, Mutex},
@@ -35,7 +38,7 @@ impl Command for cd {
     let args = input.split(" ").collect::<Vec<&str>>();
 
     let deafult_path = &"";
-    let mut path = args.get(0).unwrap_or(deafult_path).to_string();
+    let mut path = args.first().unwrap_or(deafult_path).to_string();
 
     let _ = COMMAND_STATE.lock().map(|mut lock| {
       if (path == "-") {
@@ -73,11 +76,11 @@ impl Command for ls {
     let used_args = vec!["-la"];
 
     let mut path = ".";
-    args.last().map(|x| {
-      if (is_path(x, used_args)) {
+    if let Some(x) = args.last() {
+      if is_path(x, used_args) {
         path = x;
       }
-    });
+    }
 
     let mut items = std::fs::read_dir(path)
       .map_err(|e| Box::new(e) as Box<dyn std::error::Error + Send>)?
@@ -91,7 +94,7 @@ impl Command for ls {
 
     if (list_all) {
       for i in 0..items.len() {
-        let metadata = std::fs::metadata(&path)
+        let metadata = std::fs::metadata(path)
           .map_err(|e| Box::new(e) as Box<dyn std::error::Error + Send>)?;
         let file_type = metadata.file_type();
         let permissions = metadata.permissions();
@@ -141,7 +144,12 @@ impl Command for touch {
     input: &str,
   ) -> Result<String, Box<dyn std::error::Error + Send>> {
     let path = std::path::Path::new(input);
-    match std::fs::OpenOptions::new().create(true).write(true).open(&path) {
+    match std::fs::OpenOptions::new()
+      .create(true)
+      .truncate(false)
+      .write(true)
+      .open(path)
+    {
       Ok(file) => {
         let now = std::time::SystemTime::now();
         file
@@ -162,7 +170,7 @@ impl Command for mkdir {
     input: &str,
   ) -> Result<String, Box<dyn std::error::Error + Send>> {
     let path = std::path::Path::new(input);
-    std::fs::create_dir_all(&path)
+    std::fs::create_dir_all(path)
       .map_err(|e| Box::new(e) as Box<dyn std::error::Error + Send>)?;
     Ok("".into())
   }
@@ -452,15 +460,12 @@ impl Command for grep {
   }
 }
 
+type CommandResult =
+  Result<HashMap<String, Box<dyn Command>>, Box<dyn std::error::Error + Send>>;
+type CommandMap = Arc<Mutex<CommandResult>>;
+
 lazy_static! {
-  pub static ref DEFAULT_COMMANDS: Arc<
-    Mutex<
-      Result<
-        HashMap<String, Box<dyn Command>>,
-        Box<dyn std::error::Error + Send>,
-      >,
-    >,
-  > = Arc::new(Mutex::new({
+  pub static ref DEFAULT_COMMANDS: CommandMap = Arc::new(Mutex::new({
     let mut result: HashMap<String, Box<dyn Command>> = Default::default();
 
     result.insert("cd".to_owned(), Box::new(cd));

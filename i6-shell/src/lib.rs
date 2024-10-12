@@ -1,3 +1,6 @@
+#![allow(non_camel_case_types)]
+#![allow(unused_variables)]
+
 use std::borrow::Cow::{self, Borrowed, Owned};
 use std::collections::HashMap;
 
