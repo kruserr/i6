@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.17] - 2024-10-12
+
+### Features
+
+- I6-http crate
+- I6-timer crate
+
 ## [0.1.16] - 2024-10-12
 
 ### Bug Fixes
