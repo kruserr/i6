@@ -17,8 +17,9 @@ bump_version () {
   # update the Cargo.toml version of the workspaces
   msg="# prepare_release.sh"
 
-  sed "s/^version = .* $msg$/version = \"${1#v}\" $msg/" -i i6/Cargo.toml
   sed "s/^version = .* $msg$/version = \"${1#v}\" $msg/" -i i6-pack/Cargo.toml
+  sed "s/^version = .* $msg$/version = \"${1#v}\" $msg/" -i i6-shell/Cargo.toml
+  sed "s/^version = .* $msg$/version = \"${1#v}\" $msg/" -i i6/Cargo.toml
 
   cargo check
 }
