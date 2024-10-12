@@ -76,4 +76,5 @@ jobs:
       - name: Publish
         run: |
           cargo publish -p i6-pack --token ${{ secrets.CARGO_TOKEN }}
+          cargo publish -p i6-shell --token ${{ secrets.CARGO_TOKEN }}
           cargo publish -p i6 --token ${{ secrets.CARGO_TOKEN }}
