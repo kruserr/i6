@@ -26,11 +26,12 @@ pub enum ASTNode {
   Command { name: String, args: Vec<ASTNode> },
   Operator { op: String, args: Vec<ASTNode> },
   Argument { value: String },
+  Pipe { left: Box<ASTNode>, right: Box<ASTNode> },
 }
 
 impl Default for ASTNode {
   fn default() -> Self {
-    todo!()
+    ASTNode::Argument { value: String::new() }
   }
 }
 
@@ -128,7 +129,16 @@ impl Parser for DefaultParser {
               break;
             }
           }
-          root = ASTNode::Operator { op: token.value, args };
+          if token.value == "|" {
+            let right = args.pop().unwrap();
+            let left = args.pop().unwrap();
+            root = ASTNode::Pipe {
+              left: Box::new(left),
+              right: Box::new(right),
+            };
+          } else {
+            root = ASTNode::Operator { op: token.value, args };
+          }
         }
         _ => eprintln!("Invalid syntax"),
       }
@@ -182,7 +192,7 @@ impl Interpreter for DefaultInterpreter {
           let _ = custom_command
             .run(args_str)
             .map(|output| {
-              if (output.len() > 0) {
+              if !output.is_empty() {
                 println!("{output}");
               }
             })
@@ -197,7 +207,7 @@ impl Interpreter for DefaultInterpreter {
               let _ = command
                 .run(args_str)
                 .map(|output| {
-                  if (output.len() > 0) {
+                  if !output.is_empty() {
                     println!("{output}");
                   }
                 })
@@ -229,6 +239,60 @@ impl Interpreter for DefaultInterpreter {
         }
         _ => eprintln!("Unknown operator"),
       },
+      ASTNode::Pipe { left, right } => {
+        let first_command = if let ASTNode::Command { name, args } = *left {
+          let args: Vec<String> = args
+            .into_iter()
+            .map(|arg| {
+              if let ASTNode::Argument { value } = arg {
+                value
+              } else {
+                eprintln!("Invalid syntax");
+                "".to_owned()
+              }
+            })
+            .collect();
+
+          std::process::Command::new(name)
+            .args(args)
+            .stdout(std::process::Stdio::piped())
+            .spawn()
+            .expect("Failed to start first command")
+        } else {
+          return;
+        };
+
+        let second_command = if let ASTNode::Command { name, args } = *right {
+          let args: Vec<String> = args
+            .into_iter()
+            .map(|arg| {
+              if let ASTNode::Argument { value } = arg {
+                value
+              } else {
+                eprintln!("Invalid syntax");
+                "".to_owned()
+              }
+            })
+            .collect();
+
+          println!("{:?}", args);
+
+          std::process::Command::new(name)
+            .args(args)
+            .stdin(first_command.stdout.unwrap())
+            .stdout(std::process::Stdio::piped())
+            .spawn()
+            .expect("Failed to start second command")
+        } else {
+          return;
+        };
+
+        let output = second_command
+            .wait_with_output()
+            .expect("Failed to wait on second command");
+
+        println!("{}", String::from_utf8_lossy(&output.stdout));
+      }
       _ => eprintln!("Invalid syntax"),
     }
   }
