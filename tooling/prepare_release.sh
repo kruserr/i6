@@ -5,6 +5,9 @@
 # ./prepare_release.sh 0.1.25
 # ```
 
+# Deps
+# cargo install --locked git-cliff
+
 set -Eeuo pipefail
 
 ci () {
