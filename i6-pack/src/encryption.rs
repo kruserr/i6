@@ -1,7 +1,10 @@
-use aes_gcm::{
-  aead::{Aead, KeyInit},
-  Aes256Gcm, Key, Nonce,
+use chacha20poly1305::{
+  aead::{Aead, AeadCore, KeyInit, OsRng},
+  ChaCha20Poly1305, Nonce,
 };
+
+use argon2::{self, password_hash::SaltString, Argon2, PasswordHasher};
+
 use hmac::digest::{generic_array::GenericArray, typenum};
 use rand::RngCore;
 use std::fs::File;
@@ -16,15 +19,7 @@ fn generate_salt() -> [u8; SALT_LEN] {
   salt
 }
 
-fn generate_nonce() -> Nonce<typenum::U12> {
-  let mut nonce = [0u8; NONCE_LEN];
-  rand::thread_rng().fill_bytes(&mut nonce);
-  *Nonce::from_slice(&nonce)
-}
-
 fn derive_key_from_password_argon2(password: &str, salt: &[u8]) -> [u8; 32] {
-  use argon2::{self, password_hash::SaltString, Argon2, PasswordHasher};
-
   let argon2 = Argon2::default();
   let salt = SaltString::encode_b64(salt).unwrap();
   let password_hash = argon2.hash_password(password.as_bytes(), &salt).unwrap();
@@ -41,8 +36,8 @@ pub fn encrypt_file(
 ) -> io::Result<()> {
   let salt = generate_salt();
   let key = derive_key_from_password_argon2(password, &salt);
-  let cipher = Aes256Gcm::new(Key::<Aes256Gcm>::from_slice(&key));
-  let nonce = generate_nonce();
+  let cipher = ChaCha20Poly1305::new((&key).into());
+  let nonce = ChaCha20Poly1305::generate_nonce(&mut OsRng);
 
   let file_content = std::fs::read(input_file)?;
   let ciphertext = cipher
@@ -53,6 +48,7 @@ pub fn encrypt_file(
   output.write_all(&salt)?; // Prepend salt
   output.write_all(nonce.as_slice())?; // Prepend nonce
   output.write_all(&ciphertext)?;
+
   Ok(())
 }
 
@@ -67,7 +63,7 @@ pub fn decrypt_file(
   let (salt, nonce) = salt_and_nonce.split_at(SALT_LEN); // Extract salt
 
   let key = derive_key_from_password_argon2(password, salt);
-  let cipher = Aes256Gcm::new(Key::<Aes256Gcm>::from_slice(&key));
+  let cipher = ChaCha20Poly1305::new((&key).into());
 
   let nonce = GenericArray::from_slice(nonce);
   let plaintext = match cipher.decrypt(nonce, ciphertext) {
