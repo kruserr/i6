@@ -1,8 +1,11 @@
 use std::io::Write;
+use std::path::PathBuf;
 
 use crate::compression;
-use crate::encryption;
+use crate::encryptions;
 use crate::utils;
+
+use crate::encryptions::encryption::Encryption;
 
 pub fn run(action: &str, target: &str, encrypt: bool) -> std::io::Result<()> {
   let password = &if encrypt {
@@ -33,11 +36,25 @@ pub fn run(action: &str, target: &str, encrypt: bool) -> std::io::Result<()> {
     .or_else(|_| utils::sanitize_output_path(target))
     .expect("Invalid target path");
 
+  return run_non_interactive(action, target_path.to_str().unwrap_or_default(), password);
+}
+
+pub fn run_non_interactive(action: &str, target: &str, password: &str) -> std::io::Result<()> {
+  let encrypt = !password.is_empty();
+  let extension = if encrypt {
+    "i6pe"
+  } else {
+    "i6p"
+  };
+
+  let target_path = PathBuf::from(target);
+
   let tar_file =
-    &format!(".{}_{}.tar", target_path.display(), uuid::Uuid::new_v4());
+    &format!("{}-{}.tar", target_path.display(), uuid::Uuid::new_v4());
   let compressed_file =
-    &format!(".{}_{}.tar.zst", target_path.display(), uuid::Uuid::new_v4());
-  let encrypted_file = &format!("{}.i6p", target_path.display());
+    &format!("{}-{}.tar.zst", target_path.display(), uuid::Uuid::new_v4());
+
+  let file_out = &format!("{}.{}", target_path.display(), extension);
 
   match action {
     "pack" => {
@@ -45,14 +62,14 @@ pub fn run(action: &str, target: &str, encrypt: bool) -> std::io::Result<()> {
 
       if (encrypt) {
         compression::compress_tar_file(tar_file, compressed_file)?;
-        encryption::encrypt_file(compressed_file, encrypted_file, password)?;
+        encryptions::cha_cha20_poly1305::ChaCha20Poly1305::encrypt_file(compressed_file, file_out, password)?;
       } else {
-        compression::compress_tar_file(tar_file, encrypted_file)?;
+        compression::compress_tar_file(tar_file, file_out)?;
       }
     }
     "unpack" => {
       if (encrypt) {
-        encryption::decrypt_file(
+        encryptions::cha_cha20_poly1305::ChaCha20Poly1305::decrypt_file(
           target_path.to_str().unwrap(),
           compressed_file,
           password,
@@ -64,7 +81,7 @@ pub fn run(action: &str, target: &str, encrypt: bool) -> std::io::Result<()> {
 
       compression::extract_tar_archive(
         tar_file,
-        &utils::remove_extension(target_path.to_str().unwrap(), ".i6p"),
+        &utils::remove_extension(target_path.to_str().unwrap(), &format!(".{extension}")),
       )?;
     }
     _ => {
