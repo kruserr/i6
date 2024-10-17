@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.18] - 2024-10-17
+
+### Bug Fixes
+
+- Ci.sh
+
+### Documentation
+
+- Add deps to tooling
+
+### Features
+
+- Chacha20-poly1305
+- Use Encryption trait and impl aes256_gcm and cha_cha20_poly1305
+
 ## [0.1.17] - 2024-10-12
 
 ### Features

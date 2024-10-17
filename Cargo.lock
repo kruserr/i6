@@ -682,7 +682,7 @@ dependencies = [
 
 [[package]]
 name = "i6"
-version = "0.1.17"
+version = "0.1.18"
 dependencies = [
  "clap",
  "i6-http",
@@ -693,7 +693,7 @@ dependencies = [
 
 [[package]]
 name = "i6-http"
-version = "0.1.17"
+version = "0.1.18"
 dependencies = [
  "rcgen",
  "tokio",
@@ -703,7 +703,7 @@ dependencies = [
 
 [[package]]
 name = "i6-pack"
-version = "0.1.17"
+version = "0.1.18"
 dependencies = [
  "aes-gcm",
  "argon2",
@@ -721,7 +721,7 @@ dependencies = [
 
 [[package]]
 name = "i6-shell"
-version = "0.1.17"
+version = "0.1.18"
 dependencies = [
  "chrono",
  "lazy_static",
@@ -733,7 +733,7 @@ dependencies = [
 
 [[package]]
 name = "i6-timer"
-version = "0.1.17"
+version = "0.1.18"
 
 [[package]]
 name = "iana-time-zone"
