@@ -36,16 +36,20 @@ pub fn run(action: &str, target: &str, encrypt: bool) -> std::io::Result<()> {
     .or_else(|_| utils::sanitize_output_path(target))
     .expect("Invalid target path");
 
-  return run_non_interactive(action, target_path.to_str().unwrap_or_default(), password);
+  return run_non_interactive(
+    action,
+    target_path.to_str().unwrap_or_default(),
+    password,
+  );
 }
 
-pub fn run_non_interactive(action: &str, target: &str, password: &str) -> std::io::Result<()> {
+pub fn run_non_interactive(
+  action: &str,
+  target: &str,
+  password: &str,
+) -> std::io::Result<()> {
   let encrypt = !password.is_empty();
-  let extension = if encrypt {
-    "i6pe"
-  } else {
-    "i6p"
-  };
+  let extension = if encrypt { "i6pe" } else { "i6p" };
 
   let target_path = PathBuf::from(target);
 
@@ -62,7 +66,11 @@ pub fn run_non_interactive(action: &str, target: &str, password: &str) -> std::i
 
       if (encrypt) {
         compression::compress_tar_file(tar_file, compressed_file)?;
-        encryptions::cha_cha20_poly1305::ChaCha20Poly1305::encrypt_file(compressed_file, file_out, password)?;
+        encryptions::cha_cha20_poly1305::ChaCha20Poly1305::encrypt_file(
+          compressed_file,
+          file_out,
+          password,
+        )?;
       } else {
         compression::compress_tar_file(tar_file, file_out)?;
       }
@@ -81,7 +89,10 @@ pub fn run_non_interactive(action: &str, target: &str, password: &str) -> std::i
 
       compression::extract_tar_archive(
         tar_file,
-        &utils::remove_extension(target_path.to_str().unwrap(), &format!(".{extension}")),
+        &utils::remove_extension(
+          target_path.to_str().unwrap(),
+          &format!(".{extension}"),
+        ),
       )?;
     }
     _ => {

@@ -46,13 +46,15 @@ impl Encryption for Aes256Gcm {
   ) -> io::Result<()> {
     let salt = generate_salt();
     let key = derive_key_from_password_argon2(password, &salt);
-    let cipher = aes_gcm::Aes256Gcm::new(Key::<aes_gcm::Aes256Gcm>::from_slice(&key));
+    let cipher =
+      aes_gcm::Aes256Gcm::new(Key::<aes_gcm::Aes256Gcm>::from_slice(&key));
     let nonce = generate_nonce();
 
     let file_content = std::fs::read(input_file)?;
-    let ciphertext = cipher
-      .encrypt(&nonce, file_content.as_ref())
-      .map_err(|_| io::Error::new(io::ErrorKind::Other, "Encryption failure"))?;
+    let ciphertext =
+      cipher.encrypt(&nonce, file_content.as_ref()).map_err(|_| {
+        io::Error::new(io::ErrorKind::Other, "Encryption failure")
+      })?;
 
     let mut output = File::create(output_file)?;
     output.write_all(&salt)?; // Prepend salt
@@ -72,7 +74,8 @@ impl Encryption for Aes256Gcm {
     let (salt, nonce) = salt_and_nonce.split_at(SALT_LEN); // Extract salt
 
     let key = derive_key_from_password_argon2(password, salt);
-    let cipher = aes_gcm::Aes256Gcm::new(Key::<aes_gcm::Aes256Gcm>::from_slice(&key));
+    let cipher =
+      aes_gcm::Aes256Gcm::new(Key::<aes_gcm::Aes256Gcm>::from_slice(&key));
 
     let nonce = GenericArray::from_slice(nonce);
     let plaintext = match cipher.decrypt(nonce, ciphertext) {

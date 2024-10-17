@@ -1,5 +1,6 @@
 use chacha20poly1305::{
-  aead::{Aead, AeadCore, KeyInit, OsRng}, Nonce,
+  aead::{Aead, AeadCore, KeyInit, OsRng},
+  Nonce,
 };
 
 use argon2::{self, password_hash::SaltString, Argon2, PasswordHasher};
@@ -44,9 +45,10 @@ impl Encryption for ChaCha20Poly1305 {
     let nonce = chacha20poly1305::ChaCha20Poly1305::generate_nonce(&mut OsRng);
 
     let file_content = std::fs::read(input_file)?;
-    let ciphertext = cipher
-      .encrypt(&nonce, file_content.as_ref())
-      .map_err(|_| io::Error::new(io::ErrorKind::Other, "Encryption failure"))?;
+    let ciphertext =
+      cipher.encrypt(&nonce, file_content.as_ref()).map_err(|_| {
+        io::Error::new(io::ErrorKind::Other, "Encryption failure")
+      })?;
 
     let mut output = File::create(output_file)?;
     output.write_all(&salt)?; // Prepend salt
