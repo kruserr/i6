@@ -10,7 +10,7 @@ fn main() -> Result<(), Box<dyn Error>> {
   let timer_id = "timer";
   let sh_id = "sh";
 
-  let matches = Command::new("i6")
+  let matches = Command::new(env!("CARGO_PKG_NAME"))
     .version(env!("CARGO_PKG_VERSION"))
     .author(env!("CARGO_PKG_AUTHORS"))
     .about(env!("CARGO_PKG_DESCRIPTION"))
